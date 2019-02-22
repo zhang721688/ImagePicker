@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 1
+        versionName "1.0.0"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
@@ -31,11 +31,11 @@ def siteUrl = 'https://github.com/zhang721688/ImagePicker'
 //项目的git地址
 def gitUrl = 'https://github.com/zhang721688/ImagePicker.git'
 //发布到JCenter上的项目名字
-def libName = "ImagePicker"
+def libName = "zImagePicker"
 //发布到组织名称名字，必须填写
-group = "com.zxn.zatlib"
+group = "com.zxn.imagepicker"
 // 版本号，下次更新是只需要更改版本号即可
-version = "1.0.1"
+version = "1.0.0"
 //上面配置后上传至JCenter后的编译路径是这样的： compile 'com.zxn.zatlib.AtEditText:library:1.0.0'
 //生成源文件
 task sourcesJar(type: Jar) {
