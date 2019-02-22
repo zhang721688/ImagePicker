@@ -27,9 +27,9 @@ dependencies {
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
 }
 //项目主页
-def siteUrl = 'https://github.com/zhang721688/ImagePicker'
+def siteUrl = 'https://github.com/zhang721688/ImagePickerDemo'
 //项目的git地址
-def gitUrl = 'https://github.com/zhang721688/ImagePicker.git'
+def gitUrl = 'https://github.com/zhang721688/ImagePickerDemo.git'
 //发布到JCenter上的项目名字
 def libName = "zImagePicker"
 //发布到组织名称名字，必须填写
@@ -105,11 +105,11 @@ bintray {
     configurations = ['archives']
     pkg {
         //这里的repo值必须要和你创建Maven仓库的时候的名字一样
-        repo = "ImagePicker"
+        repo = "ImagePickerDemo"
         //发布到JCenter上的项目名字
         name = libName
         //项目描述
-        desc = 'imageselect..'
+        desc = 'image select..'
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
