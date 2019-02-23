@@ -27,16 +27,16 @@ dependencies {
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
 }
 //项目主页
-def siteUrl = 'https://github.com/zhang721688/ImagePickerDemo'
+def siteUrl = 'https://github.com/zhang721688/MyImagePicker'
 //项目的git地址
-def gitUrl = 'https://github.com/zhang721688/ImagePickerDemo.git'
+def gitUrl = 'https://github.com/zhang721688/MyImagePicker.git'
 //发布到JCenter上的项目名字
 def libName = "zImagePicker"
 //发布到组织名称名字，必须填写
 group = "com.zxn.imagepicker"
 // 版本号，下次更新是只需要更改版本号即可
 version = "1.0.0"
-//上面配置后上传至JCenter后的编译路径是这样的： compile 'com.zxn.zatlib.AtEditText:library:1.0.0'
+//上面配置后上传至JCenter后的编译路径是这样的： compile 'com.zxn.zatlib.zImagePicker:1.0.0'
 //生成源文件
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -105,7 +105,7 @@ bintray {
     configurations = ['archives']
     pkg {
         //这里的repo值必须要和你创建Maven仓库的时候的名字一样
-        repo = "ImagePickerDemo"
+        repo = "MyImagePicker"
         //发布到JCenter上的项目名字
         name = libName
         //项目描述
