@@ -2,6 +2,8 @@ package com.zxn.imagepicker.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -68,6 +70,46 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     private boolean directPhoto = false; // 默认不是直接调取相机
     private RecyclerView mRecyclerView;
     private ImageRecyclerAdapter mRecyclerAdapter;
+
+
+    /**
+     * 直接进入相册选取页面,并获取结果回调数据.
+     *
+     * @param activity    activity
+     * @param images      已经选择过照片集合.
+     * @param requestCode 请求码.
+     */
+    public static void jumpToForResult(Activity activity, ArrayList<ImageItem> images, int requestCode) {
+        Intent intent = new Intent(activity, ImageGridActivity.class);
+        intent.putExtra(ImageGridActivity.EXTRAS_IMAGES, images);
+        activity.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * 直接进入相册选取页面,并获取结果回调数据.
+     *
+     * @param activity
+     */
+    public static void jumpToForResult(Activity activity, int requestCode) {
+        Intent intent = new Intent(activity, ImageGridActivity.class);
+        activity.startActivityForResult(intent, requestCode);
+    }
+
+
+    /**
+     * 进入相册选取页面,并获取结果回调数据.
+     *
+     * @param activity    activity
+     * @param directPhoto true:直接打开相机,false:不打开相机进入相册.默认直接相册.
+     * @param requestCode
+     */
+    public static void jumpToForResult(Activity activity, boolean directPhoto, int requestCode) {
+        Intent intent = new Intent(activity, ImageGridActivity.class);
+        if (directPhoto) {
+            intent.putExtra(EXTRAS_TAKE_PICKERS, directPhoto);
+        }
+        activity.startActivityForResult(intent, requestCode);
+    }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {

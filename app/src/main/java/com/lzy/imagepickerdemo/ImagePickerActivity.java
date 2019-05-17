@@ -126,11 +126,14 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_open_gallery:
-                if (rb_uil.isChecked()) imagePicker.setImageLoader(new com.zxn.imagepickerdemo.imageloader.UILImageLoader());
+                if (rb_uil.isChecked())
+                    imagePicker.setImageLoader(new com.zxn.imagepickerdemo.imageloader.UILImageLoader());
                 else if (rb_glide.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
-                else if (rb_picasso.isChecked()) imagePicker.setImageLoader(new PicassoImageLoader());
+                else if (rb_picasso.isChecked())
+                    imagePicker.setImageLoader(new PicassoImageLoader());
                 else if (rb_fresco.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
-                else if (rb_xutils3.isChecked()) imagePicker.setImageLoader(new XUtils3ImageLoader());
+                else if (rb_xutils3.isChecked())
+                    imagePicker.setImageLoader(new XUtils3ImageLoader());
                 else if (rb_xutils.isChecked()) imagePicker.setImageLoader(new GlideImageLoader());
 
                 if (rb_single_select.isChecked()) imagePicker.setMultiMode(false);
@@ -155,10 +158,12 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
                 imagePicker.setOutPutX(Integer.valueOf(et_outputx.getText().toString()));
                 imagePicker.setOutPutY(Integer.valueOf(et_outputy.getText().toString()));
 
-                Intent intent = new Intent(this, ImageGridActivity.class);
-                intent.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);
+//                Intent intent = new Intent(this, ImageGridActivity.class);
+//                intent.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);
+
+                ImageGridActivity.jumpToForResult(this, images, 100);
                 //ImagePicker.getInstance().setSelectedImages(images);
-                startActivityForResult(intent, 100);
+//                startActivityForResult(intent, 100);
                 break;
             case R.id.btn_wxDemo:
                 startActivity(new Intent(this, WxDemoActivity.class));
@@ -211,7 +216,6 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
             }
         }
     }
-
 
 
     private class MyAdapter extends BaseAdapter {
