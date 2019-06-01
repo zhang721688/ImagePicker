@@ -18,7 +18,7 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
 
 使用前，对于Android Studio的用户，可以选择添加:
 ```java
-implementation 'com.zxn.imagepicker:zImagePicker:1.0.0'
+implementation 'com.zxn.imagepicker:zImagePicker:1.0.1'
 ```
 
 ## 2.功能和参数含义
