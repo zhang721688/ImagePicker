@@ -3,16 +3,16 @@ package com.zxn.imagepicker.ui;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -75,6 +75,19 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
     /**
      * 直接进入相册选取页面,并获取结果回调数据.
      *
+     * @param fragment    activity
+     * @param images      已经选择过照片集合.
+     * @param requestCode 请求码.
+     */
+    public static void jumpToForResult(Fragment fragment, ArrayList<ImageItem> images, int requestCode) {
+        Intent intent = new Intent(fragment.getContext(), ImageGridActivity.class);
+        intent.putExtra(ImageGridActivity.EXTRAS_IMAGES, images);
+        fragment.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * 直接进入相册选取页面,并获取结果回调数据.
+     *
      * @param activity    activity
      * @param images      已经选择过照片集合.
      * @param requestCode 请求码.
@@ -95,6 +108,11 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         activity.startActivityForResult(intent, requestCode);
     }
 
+    public static void jumpToForResult(Fragment fragment, int requestCode) {
+        Intent intent = new Intent(fragment.getContext(), ImageGridActivity.class);
+        fragment.startActivityForResult(intent, requestCode);
+    }
+
 
     /**
      * 进入相册选取页面,并获取结果回调数据.
@@ -109,6 +127,14 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
             intent.putExtra(EXTRAS_TAKE_PICKERS, directPhoto);
         }
         activity.startActivityForResult(intent, requestCode);
+    }
+
+    public static void jumpToForResult(Fragment fragment, boolean directPhoto, int requestCode) {
+        Intent intent = new Intent(fragment.getContext(), ImageGridActivity.class);
+        if (directPhoto) {
+            intent.putExtra(EXTRAS_TAKE_PICKERS, directPhoto);
+        }
+        fragment.startActivityForResult(intent, requestCode);
     }
 
     @Override

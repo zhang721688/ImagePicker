@@ -3,7 +3,7 @@ package com.lzy.imagepickerdemo;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.lzy.imagepickerdemo.R;
 import com.lzy.imagepickerdemo.imageloader.GlideImageLoader;
 import com.lzy.imagepickerdemo.imageloader.PicassoImageLoader;
 import com.lzy.imagepickerdemo.imageloader.XUtils3ImageLoader;

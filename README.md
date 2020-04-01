@@ -10,6 +10,11 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
  * email： zhang721688@163.com
  * QQ： 593066063
  
+ ## 更新
+ ```
+适配Android10
+android:requestLegacyExternalStorage="true"
+ ```
 ## 演示
  ![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo1.png)![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo2.gif)
  ![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo3.gif)![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo5.gif)
@@ -18,7 +23,7 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
 
 使用前，对于Android Studio的用户，可以选择添加:
 ```java
-implementation 'com.zxn.imagepicker:zImagePicker:1.0.1'
+implementation 'com.zxn.imagepicker:zImagePicker:1.0.2'
 ```
 
 ## 2.功能和参数含义
