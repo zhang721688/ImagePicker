@@ -14,6 +14,7 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
  ```
 适配Android10
 android:requestLegacyExternalStorage="true"
+todo:支持视频选择.
  ```
 ## 演示
  ![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo1.png)![image](https://github.com/jeasonlzy/Screenshots/blob/master/ImagePicker/demo2.gif)

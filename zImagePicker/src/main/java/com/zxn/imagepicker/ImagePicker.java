@@ -96,72 +96,81 @@ public class ImagePicker {
         return multiMode;
     }
 
-    public void setMultiMode(boolean multiMode) {
+    public ImagePicker setMultiMode(boolean multiMode) {
         this.multiMode = multiMode;
+        return mInstance;
     }
 
     public int getSelectLimit() {
         return selectLimit;
     }
 
-    public void setSelectLimit(int selectLimit) {
+    public ImagePicker setSelectLimit(int selectLimit) {
         this.selectLimit = selectLimit;
+        return mInstance;
     }
 
     public boolean isCrop() {
         return crop;
     }
 
-    public void setCrop(boolean crop) {
+    public ImagePicker setCrop(boolean crop) {
         this.crop = crop;
+        return mInstance;
     }
 
     public boolean isShowCamera() {
         return showCamera;
     }
 
-    public void setShowCamera(boolean showCamera) {
+    public ImagePicker setShowCamera(boolean showCamera) {
         this.showCamera = showCamera;
+        return mInstance;
     }
 
     public boolean isSaveRectangle() {
         return isSaveRectangle;
     }
 
-    public void setSaveRectangle(boolean isSaveRectangle) {
+    public ImagePicker setSaveRectangle(boolean isSaveRectangle) {
         this.isSaveRectangle = isSaveRectangle;
+        return mInstance;
     }
 
     public int getOutPutX() {
         return outPutX;
     }
 
-    public void setOutPutX(int outPutX) {
+    public ImagePicker setOutPutX(int outPutX) {
         this.outPutX = outPutX;
+        return mInstance;
     }
 
     public int getOutPutY() {
         return outPutY;
     }
 
-    public void setOutPutY(int outPutY) {
+    public ImagePicker setOutPutY(int outPutY) {
         this.outPutY = outPutY;
+        return mInstance;
     }
 
     public int getFocusWidth() {
         return focusWidth;
     }
 
-    public void setFocusWidth(int focusWidth) {
+    public ImagePicker setFocusWidth(int focusWidth) {
         this.focusWidth = focusWidth;
+        return mInstance;
     }
 
     public int getFocusHeight() {
         return focusHeight;
     }
 
-    public void setFocusHeight(int focusHeight) {
+    public ImagePicker setFocusHeight(int focusHeight) {
         this.focusHeight = focusHeight;
+        return mInstance;
     }
 
     public File getTakeImageFile() {
@@ -175,40 +184,56 @@ public class ImagePicker {
         return cropCacheFolder;
     }
 
-    public void setCropCacheFolder(File cropCacheFolder) {
+    public ImagePicker setCropCacheFolder(File cropCacheFolder) {
         this.cropCacheFolder = cropCacheFolder;
+        return mInstance;
     }
 
     public ImageLoader getImageLoader() {
         return imageLoader;
     }
 
-    public void setImageLoader(ImageLoader imageLoader) {
+    public ImagePicker setImageLoader(ImageLoader imageLoader) {
         this.imageLoader = imageLoader;
+        return mInstance;
     }
 
     public CropImageView.Style getStyle() {
         return style;
     }
 
-    public void setStyle(CropImageView.Style style) {
+    public ImagePicker setStyle(CropImageView.Style style) {
         this.style = style;
+        return mInstance;
     }
 
     public List<ImageFolder> getImageFolders() {
         return mImageFolders;
     }
 
-    public void setImageFolders(List<ImageFolder> imageFolders) {
+    public ImagePicker setImageFolders(List<ImageFolder> imageFolders) {
         mImageFolders = imageFolders;
+        return mInstance;
     }
 
     public int getCurrentImageFolderPosition() {
         return mCurrentImageFolderPosition;
     }
 
-    public void setCurrentImageFolderPosition(int mCurrentSelectedImageSetPosition) {
+    public ImagePicker setCurrentImageFolderPosition(int mCurrentSelectedImageSetPosition) {
         mCurrentImageFolderPosition = mCurrentSelectedImageSetPosition;
+        return mInstance;
+    }
+
+    /**
+     * 是否展示视频
+     *
+     * @param showVideo
+     * @return
+     */
+    public ImagePicker showVideo(boolean showVideo) {
+        //ConfigManager.getInstance().setShowVideo(showVideo);
+        return mInstance;
     }
 
     public ArrayList<ImageItem> getCurrentImageFolderItems() {
