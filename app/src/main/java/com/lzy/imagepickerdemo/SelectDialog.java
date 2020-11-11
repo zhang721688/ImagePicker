@@ -145,12 +145,10 @@ public class SelectDialog extends Dialog implements OnClickListener,OnItemClickL
         mMBtn_Cancel = (Button) findViewById(R.id.mBtn_Cancel);
         mTv_Title = (TextView) findViewById(R.id.mTv_Title);
 
-
         mMBtn_Cancel.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 if(mCancelListener != null){
                     mCancelListener.onCancelClick(v);
                 }

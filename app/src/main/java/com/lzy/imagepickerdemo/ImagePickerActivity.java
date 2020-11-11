@@ -3,7 +3,6 @@ package com.lzy.imagepickerdemo;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.lzy.imagepickerdemo.imageloader.GlideImageLoader;
 import com.lzy.imagepickerdemo.imageloader.PicassoImageLoader;
@@ -153,16 +153,9 @@ public class ImagePickerActivity extends AppCompatActivity implements SeekBar.On
                     imagePicker.setFocusWidth(radius * 2);
                     imagePicker.setFocusHeight(radius * 2);
                 }
-
                 imagePicker.setOutPutX(Integer.valueOf(et_outputx.getText().toString()));
                 imagePicker.setOutPutY(Integer.valueOf(et_outputy.getText().toString()));
-
-//                Intent intent = new Intent(this, ImageGridActivity.class);
-//                intent.putExtra(ImageGridActivity.EXTRAS_IMAGES,images);
-
                 ImageGridActivity.jumpToForResult(this, images, 100);
-                //ImagePicker.getInstance().setSelectedImages(images);
-//                startActivityForResult(intent, 100);
                 break;
             case R.id.btn_wxDemo:
                 startActivity(new Intent(this, WxDemoActivity.class));

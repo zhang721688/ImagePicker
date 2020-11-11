@@ -40,8 +40,8 @@ public class GApp extends Application {
     public void onCreate() {
         super.onCreate();
         ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
-
-        ImageLoader.getInstance().init(config);     //UniversalImageLoader初始化
+        ImageLoader.getInstance().init(config);
+        //UniversalImageLoader初始化
         x.Ext.init(this);                           //xUtils3初始化
     }
 }
