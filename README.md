@@ -24,6 +24,8 @@ todo:支持视频选择.
 
 使用前，对于Android Studio的用户，可以选择添加:
 ```java
+implementation 'com.zxn.imagepicker:zImagePicker:1.0.5'//无权限版本:
+
 implementation 'com.zxn.imagepicker:zImagePicker:1.0.2'
 ```
 

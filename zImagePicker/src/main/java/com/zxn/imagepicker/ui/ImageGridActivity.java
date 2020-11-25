@@ -1,24 +1,20 @@
 package com.zxn.imagepicker.ui;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.zxn.imagepicker.DataHolder;
 import com.zxn.imagepicker.ImageDataSource;
@@ -37,11 +33,11 @@ import java.util.List;
 
 /**
  * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
+ * 参考：（ Github地址：https://github.com/jeasonlzy0216
  * 版    本：1.0
  * 创建日期：2016/5/19
  * 描    述：
- * 修订历史：
+ * 修订历史：Manifest.permission
  * 2017-03-17
  *
  * @author nanchen
@@ -163,11 +159,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         if (data != null && data.getExtras() != null) {
             directPhoto = data.getBooleanExtra(EXTRAS_TAKE_PICKERS, false); // 默认不是直接打开相机
             if (directPhoto) {
-                if (!(checkPermission(Manifest.permission.CAMERA))) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
-                } else {
-                    imagePicker.takePicture(this, ImagePicker.REQUEST_CODE_TAKE);
-                }
+                imagePicker.takePicture(this, ImagePicker.REQUEST_CODE_TAKE);
             }
             ArrayList<ImageItem> images = (ArrayList<ImageItem>) data.getSerializableExtra(EXTRAS_IMAGES);
             imagePicker.setSelectedImages(images);
@@ -198,34 +190,9 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
 
         onImageSelected(0, null, false);
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            if (checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                new ImageDataSource(this, null, this);
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_STORAGE);
-            }
-        } else {
-            new ImageDataSource(this, null, this);
-        }
+        new ImageDataSource(this, null, this);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSION_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                new ImageDataSource(this, null, this);
-            } else {
-                showToast("权限被禁止，无法选择本地图片");
-            }
-        } else if (requestCode == REQUEST_PERMISSION_CAMERA) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                imagePicker.takePicture(this, ImagePicker.REQUEST_CODE_TAKE);
-            } else {
-                showToast("权限被禁止，无法打开相机");
-            }
-        }
-    }
 
     @Override
     protected void onDestroy() {
