@@ -17,4 +17,18 @@
     <style name="transparentFrameWindowStyle" parent="android:style/Theme.Dialog">
         <item name="android:windowBackground">@drawable/photo_choose_bg</item>
     </style>
+
+
 </resources>
+
+<!--
+
+<style name="NumCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+<item name="android:button">@null</item>
+<item name="android:gravity">center</item>
+<item name="android:background">@drawable/picker_sc_item_checked</item>
+<item name="android:layout_width">20dp</item>
+<item name="android:layout_height">20dp</item>
+<item name="android:textColor">#ffffff</item>
+</style>
+-->

@@ -7,18 +7,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.zxn.imagepicker.DataHolder;
 import com.zxn.imagepicker.ImageDataSource;
@@ -36,19 +37,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
- * 修订历史：
- * 2017-03-17
- *
- * @author nanchen
- * 新增可直接传递是否裁剪参数，以及直接拍照
- * ================================================
+ * 照片选择页面.
  */
-public class ImageGridActivity extends ImageBaseActivity implements ImageDataSource.OnImagesLoadedListener, ImageRecyclerAdapter.OnImageItemClickListener, ImagePicker.OnImageSelectedListener, View.OnClickListener {
+public class ImageGridActivity
+        extends ImageBaseActivity
+        implements ImageDataSource.OnImagesLoadedListener,
+        ImageRecyclerAdapter.OnImageItemClickListener, ImagePicker.OnImageSelectedListener, View.OnClickListener {
 
     public static final int REQUEST_PERMISSION_STORAGE = 0x01;
     public static final int REQUEST_PERMISSION_CAMERA = 0x02;
@@ -298,13 +292,10 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         this.mImageFolders = imageFolders;
         imagePicker.setImageFolders(imageFolders);
         if (imageFolders.size() == 0) {
-//            mImageGridAdapter.refreshData(null);
             mRecyclerAdapter.refreshData(null);
         } else {
-//            mImageGridAdapter.refreshData(imageFolders.get(0).images);
             mRecyclerAdapter.refreshData(imageFolders.get(0).images);
         }
-//        mImageGridAdapter.setOnImageItemClickListener(this);
         mRecyclerAdapter.setOnImageItemClickListener(this);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         mRecyclerView.addItemDecoration(new GridSpacingItemDecoration(3, Utils.dp2px(this, 2), false));

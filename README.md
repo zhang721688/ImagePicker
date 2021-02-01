@@ -5,11 +5,15 @@ Android自定义相册，完全仿微信UI，实现了拍照、图片选择（�
 
 * [https://github.com/pengjianbo/GalleryFinal](https://github.com/pengjianbo/GalleryFinal) 
 * [https://github.com/easonline/AndroidImagePicker](https://github.com/easonline/AndroidImagePicker)
+* [https://github.com/jeasonlzy0216](https://github.com/jeasonlzy0216)
 
-## 联系方式
- * email： zhang721688@163.com
- * QQ： 593066063
- 
+ ## 1.0.6更新
+ ```
+1,新增设置勾选的CheckBox的勾选背景选择器方法
+2,新增是否可以设置显示勾选的图标索引
+3,
+ ```
+
  ## 更新
  ```
 适配Android10

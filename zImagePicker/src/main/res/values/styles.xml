@@ -12,6 +12,18 @@
     <!--SuperCheckbox的样式-->
     <style name="SuperCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/selector_item_checked</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+    </style>
+
+    <!--SuperCheckbox的样式2-->
+    <style name="NumCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@null</item>
+        <item name="android:background">@drawable/selector_item_checked</item>
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="popupwindow_anim_style">
@@ -20,4 +32,14 @@
         <!-- 指定消失的动画xml -->
         <item name="android:windowExitAnimation">@anim/hide_to_bottom</item>
     </style>
+
 </resources>
+
+
+<!--
+ <item name="android:background">@drawable/picker_sc_item_checked</item>
+
+-->
+
+
+

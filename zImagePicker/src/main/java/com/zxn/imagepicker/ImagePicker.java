@@ -12,8 +12,9 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import androidx.core.content.FileProvider;
 import android.util.Log;
+
+import androidx.core.content.FileProvider;
 
 import com.zxn.imagepicker.bean.ImageFolder;
 import com.zxn.imagepicker.bean.ImageItem;
@@ -31,16 +32,8 @@ import java.util.Locale;
 
 /**
  * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：图片选择的入口类
- * 修订历史：
- * 2017-03-20
- *
- * @author nanchen
- *         采用单例和弱引用解决Intent传值限制导致的异常
- *         ================================================
+ * 采用单例和弱引用解决Intent传值限制导致的异常
+ * ================================================
  */
 public class ImagePicker {
 
@@ -70,6 +63,30 @@ public class ImagePicker {
     private File cropCacheFolder;
     private File takeImageFile;
     public Bitmap cropBitmap;
+
+    /**
+     * 是否显示已经选图片的角标.
+     */
+    private boolean showSelectIndex = false;
+
+    public ImagePicker setshowSelectIndex(boolean show) {
+        this.showSelectIndex = show;
+        return mInstance;
+    }
+
+    public boolean isShowSelectIndex() {
+        return showSelectIndex;
+    }
+
+    private int checkBoxResource = 0;
+
+    public int getCheckBoxResource() {
+        return checkBoxResource;
+    }
+
+    public void setCheckBoxResource(int resourceId) {
+        this.checkBoxResource = resourceId;
+    }
 
     private ArrayList<ImageItem> mSelectedImages = new ArrayList<>();   //选中的图片集合
     private List<ImageFolder> mImageFolders;      //所有的图片文件夹
@@ -281,7 +298,8 @@ public class ImagePicker {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takePictureIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            if (Utils.existSDCard()) takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
+            if (Utils.existSDCard())
+                takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
             else takeImageFile = Environment.getDataDirectory();
             takeImageFile = createFile(takeImageFile, "IMG_", ".jpg");
             if (takeImageFile != null) {
@@ -408,6 +426,13 @@ public class ImagePicker {
         outState.putInt("outPutY", outPutY);
         outState.putInt("focusWidth", focusWidth);
         outState.putInt("focusHeight", focusHeight);
+    }
+
+    /**
+     * 获取选中图片所在集合中的索引.
+     */
+    public int imageIndexOf(ImageItem imageItem) {
+        return mSelectedImages.indexOf(imageItem);
     }
 
 }
