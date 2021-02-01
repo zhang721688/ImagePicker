@@ -23,8 +23,11 @@ todo:支持视频选择.
 ## 1.用法
 
 使用前，对于Android Studio的用户，可以选择添加:
-```java
-implementation 'com.zxn.imagepicker:zImagePicker:1.0.2'
+```
+implementation 'com.zxn.imagepicker:zImagePicker:1.0.6'
+
+//选择照片无权限版本
+implementation 'com.zxn.imagepicker:zImagePicker:1.0.5'
 ```
 
 ## 2.功能和参数含义
@@ -72,7 +75,7 @@ public class PicassoImageLoader implements ImageLoader {
 ```
 
 2. 然后配置图片选择器，一般在Application初始化配置一次就可以,这里就需要将上面的图片加载器设置进来,其余的配置根据需要设置
-```java
+```
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_image_picker);
@@ -92,7 +95,7 @@ protected void onCreate(Bundle savedInstanceState) {
 ```
 
 3. 以上配置完成后，在适当的方法中开启相册，例如点击按钮时
-```java
+```
 public void onClick(View v) {
         Intent intent = new Intent(this, ImageGridActivity.class);
         startActivityForResult(intent, IMAGE_PICKER);  
@@ -101,14 +104,14 @@ public void onClick(View v) {
 ```
 
 4. 如果你想直接调用相机
-```java
+```
 Intent intent = new Intent(this, ImageGridActivity.class);
 intent.putExtra(ImageGridActivity.EXTRAS_TAKE_PICKERS,true); // 是否是直接打开相机
 startActivityForResult(intent, REQUEST_CODE_SELECT);
 ```
 
 5. 重写`onActivityResult`方法,回调结果
-```java
+```
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
