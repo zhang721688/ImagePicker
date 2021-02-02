@@ -70,7 +70,7 @@ class ImagePickerAdapter(private val mContext: Context, data: List<ImageItem>?, 
                 iv_img.setImageResource(R.drawable.selector_image_add)
                 WxDemoActivity.IMAGE_ITEM_ADD
             } else {
-                ImagePicker.getInstance().imageLoader.displayImage(mContext as Activity, item.path, iv_img, 0, 0)
+                ImagePicker.imageLoader?.displayImage(mContext as Activity, item.path, iv_img, 0, 0)
                 position
             }
         }

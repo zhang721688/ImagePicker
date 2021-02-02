@@ -38,7 +38,7 @@ class WxDemoActivity : AppCompatActivity(), OnRecyclerViewItemClickListener {
     }
 
     private fun initImagePicker() {
-        val imagePicker = ImagePicker.getInstance().apply {
+        val imagePicker = ImagePicker.apply {
             setshowSelectIndex(false)
             checkBoxResource = R.drawable.picker_sc_item_checked
         }
@@ -98,14 +98,14 @@ class WxDemoActivity : AppCompatActivity(), OnRecyclerViewItemClickListener {
 //                                * 如果实在有所需要，请直接下载源码引用。
 //                                *//*
                                 //打开选择,本次允许选择的数量
-                                ImagePicker.getInstance().selectLimit = maxImgCount - selImageList!!.size
+                                ImagePicker.selectLimit = maxImgCount - selImageList!!.size
                                 val intent = Intent(this@WxDemoActivity, ImageGridActivity::class.java)
                                 intent.putExtra(ImageGridActivity.EXTRAS_TAKE_PICKERS, true) // 是否是直接打开相机
                                 startActivityForResult(intent, REQUEST_CODE_SELECT)
                             }
                             1 -> {
                                 //打开选择,本次允许选择的数量
-                                ImagePicker.getInstance().selectLimit = maxImgCount - selImageList!!.size
+                                ImagePicker.selectLimit = maxImgCount - selImageList!!.size
                                 val intent1 = Intent(this@WxDemoActivity, ImageGridActivity::class.java)
 //                                *//* 如果需要进入选择的时候显示已经选中的图片，
 //                                * 详情请查看ImagePickerActivity

@@ -1,226 +1,199 @@
-package com.zxn.imagepicker.ui;
+package com.zxn.imagepicker.ui
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import androidx.viewpager.widget.ViewPager;
-import android.text.format.Formatter;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Toast;
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.text.format.Formatter
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.widget.Button
+import android.widget.CompoundButton
+import android.widget.Toast
+import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
+import com.zxn.imagepicker.ImagePicker
+import com.zxn.imagepicker.ImagePicker.OnImageSelectedListener
+import com.zxn.imagepicker.R
+import com.zxn.imagepicker.bean.ImageItem
+import com.zxn.imagepicker.ui.ImagePreviewActivity
+import com.zxn.imagepicker.util.NavigationBarChangeListener
+import com.zxn.imagepicker.util.NavigationBarChangeListener.OnSoftInputStateChangeListener
+import com.zxn.imagepicker.util.Utils
+import com.zxn.imagepicker.view.SuperCheckBox
 
-import com.zxn.imagepicker.ImagePicker;
-import com.zxn.imagepicker.R;
-import com.zxn.imagepicker.bean.ImageItem;
-import com.zxn.imagepicker.util.NavigationBarChangeListener;
-import com.zxn.imagepicker.util.Utils;
-import com.zxn.imagepicker.view.SuperCheckBox;
+class ImagePreviewActivity : ImagePreviewBaseActivity(), OnImageSelectedListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+    private var isOrigin //是否选中原图
+            = false
+    private var mCbCheck //是否选中当前图片的CheckBox
+            : SuperCheckBox? = null
+    private var mCbOrigin //原图
+            : SuperCheckBox? = null
+    private var mBtnOk //确认图片的选择
+            : Button? = null
+    private lateinit var bottomBar: View
+    private lateinit var marginView: View
 
-/**
- * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
- * 修订历史：
- * ================================================
- */
-public class ImagePreviewActivity extends ImagePreviewBaseActivity implements ImagePicker.OnImageSelectedListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
-    public static final String ISORIGIN = "isOrigin";
-
-    private boolean isOrigin;                      //是否选中原图
-    private SuperCheckBox mCbCheck;                //是否选中当前图片的CheckBox
-    private SuperCheckBox mCbOrigin;               //原图
-    private Button mBtnOk;                         //确认图片的选择
-    private View bottomBar;
-    private View marginView;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        isOrigin = getIntent().getBooleanExtra(ImagePreviewActivity.ISORIGIN, false);
-        imagePicker.addOnImageSelectedListener(this);
-        mBtnOk = (Button) findViewById(R.id.btn_ok);
-        mBtnOk.setVisibility(View.VISIBLE);
-        mBtnOk.setOnClickListener(this);
-
-        bottomBar = findViewById(R.id.bottom_bar);
-        bottomBar.setVisibility(View.VISIBLE);
-
-        mCbCheck = (SuperCheckBox) findViewById(R.id.cb_check);
-        mCbOrigin = (SuperCheckBox) findViewById(R.id.cb_origin);
-        marginView = findViewById(R.id.margin_bottom);
-        mCbOrigin.setText(getString(R.string.ip_origin));
-        mCbOrigin.setOnCheckedChangeListener(this);
-        mCbOrigin.setChecked(isOrigin);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        isOrigin = intent.getBooleanExtra(ISORIGIN, false)
+        imagePicker.addOnImageSelectedListener(this)
+        mBtnOk = findViewById<View>(R.id.btn_ok) as Button
+        mBtnOk!!.visibility = View.VISIBLE
+        mBtnOk!!.setOnClickListener(this)
+        bottomBar = findViewById(R.id.bottom_bar)
+        bottomBar.setVisibility(View.VISIBLE)
+        mCbCheck = findViewById<View>(R.id.cb_check) as SuperCheckBox
+        mCbOrigin = findViewById<View>(R.id.cb_origin) as SuperCheckBox
+        marginView = findViewById(R.id.margin_bottom)
+        mCbOrigin!!.text = getString(R.string.ip_origin)
+        mCbOrigin!!.setOnCheckedChangeListener(this)
+        mCbOrigin!!.isChecked = isOrigin
 
         //初始化当前页面的状态
-        onImageSelected(0, null, false);
-        ImageItem item = mImageItems.get(mCurrentPosition);
-        boolean isSelected = imagePicker.isSelect(item);
-        mTitleCount.setText(getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems.size()));
-        mCbCheck.setChecked(isSelected);
+        onImageSelected(0, null, false)
+        val item = mImageItems?.get(mCurrentPosition)
+        val isSelected = item?.let { imagePicker.isSelect(it) }
+        mTitleCount?.text = getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems?.size)
+        mCbCheck!!.isChecked = isSelected
         //滑动ViewPager的时候，根据外界的数据改变当前的选中状态和当前的图片的位置描述文本
-        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                mCurrentPosition = position;
-                ImageItem item = mImageItems.get(mCurrentPosition);
-                boolean isSelected = imagePicker.isSelect(item);
-                mCbCheck.setChecked(isSelected);
-                mTitleCount.setText(getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems.size()));
+        mViewPager?.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                mCurrentPosition = position
+                val item = mImageItems[mCurrentPosition]
+                val isSelected = imagePicker.isSelect(item)
+                mCbCheck!!.isChecked = isSelected
+                mTitleCount?.text = getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems.size)
             }
-        });
+        })
         //当点击当前选中按钮的时候，需要根据当前的选中状态添加和移除图片
-        mCbCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageItem imageItem = mImageItems.get(mCurrentPosition);
-                int selectLimit = imagePicker.getSelectLimit();
-                if (mCbCheck.isChecked() && selectedImages.size() >= selectLimit) {
-                    Toast.makeText(ImagePreviewActivity.this, getString(R.string.ip_select_limit, selectLimit), Toast.LENGTH_SHORT).show();
-                    mCbCheck.setChecked(false);
-                } else {
-                    imagePicker.addSelectedImageItem(mCurrentPosition, imageItem, mCbCheck.isChecked());
-                }
+        mCbCheck!!.setOnClickListener {
+            val imageItem = mImageItems[mCurrentPosition]
+            val selectLimit = imagePicker.selectLimit
+            if (mCbCheck!!.isChecked && selectedImages.size >= selectLimit) {
+                Toast.makeText(this@ImagePreviewActivity, getString(R.string.ip_select_limit, selectLimit), Toast.LENGTH_SHORT).show()
+                mCbCheck!!.isChecked = false
+            } else {
+                imagePicker.addSelectedImageItem(mCurrentPosition, imageItem, mCbCheck!!.isChecked)
             }
-        });
-        NavigationBarChangeListener.with(this).setListener(new NavigationBarChangeListener.OnSoftInputStateChangeListener() {
-            @Override
-            public void onNavigationBarShow(int orientation, int height) {
-                marginView.setVisibility(View.VISIBLE);
-                ViewGroup.LayoutParams layoutParams = marginView.getLayoutParams();
+        }
+        NavigationBarChangeListener.with(this).setListener(object : OnSoftInputStateChangeListener {
+            override fun onNavigationBarShow(orientation: Int, height: Int) {
+                marginView.setVisibility(View.VISIBLE)
+                val layoutParams = marginView.getLayoutParams()
                 if (layoutParams.height == 0) {
-                    layoutParams.height = Utils.getNavigationBarHeight(ImagePreviewActivity.this);
-                    marginView.requestLayout();
+                    layoutParams.height = Utils.getNavigationBarHeight(this@ImagePreviewActivity)
+                    marginView.requestLayout()
                 }
             }
 
-            @Override
-            public void onNavigationBarHide(int orientation) {
-                marginView.setVisibility(View.GONE);
+            override fun onNavigationBarHide(orientation: Int) {
+                marginView.setVisibility(View.GONE)
             }
-        });
+        })
         NavigationBarChangeListener.with(this, NavigationBarChangeListener.ORIENTATION_HORIZONTAL)
-                .setListener(new NavigationBarChangeListener.OnSoftInputStateChangeListener() {
-                    @Override
-                    public void onNavigationBarShow(int orientation, int height) {
-                        topBar.setPadding(0, 0, height, 0);
-                        bottomBar.setPadding(0, 0, height, 0);
+                .setListener(object : OnSoftInputStateChangeListener {
+                    override fun onNavigationBarShow(orientation: Int, height: Int) {
+                        topBar.setPadding(0, 0, height, 0)
+                        bottomBar.setPadding(0, 0, height, 0)
                     }
 
-                    @Override
-                    public void onNavigationBarHide(int orientation) {
-                        topBar.setPadding(0, 0, 0, 0);
-                        bottomBar.setPadding(0, 0, 0, 0);
+                    override fun onNavigationBarHide(orientation: Int) {
+                        topBar.setPadding(0, 0, 0, 0)
+                        bottomBar.setPadding(0, 0, 0, 0)
                     }
-                });
+                })
     }
-
-
 
     /**
      * 图片添加成功后，修改当前图片的选中数量
      * 当调用 addSelectedImageItem 或 deleteSelectedImageItem 都会触发当前回调
      */
-    @Override
-    public void onImageSelected(int position, ImageItem item, boolean isAdd) {
-        if (imagePicker.getSelectImageCount() > 0) {
-            mBtnOk.setText(getString(R.string.ip_select_complete, imagePicker.getSelectImageCount(), imagePicker.getSelectLimit()));
+    override fun onImageSelected(position: Int, item: ImageItem?, isAdd: Boolean) {
+        if (imagePicker.selectImageCount > 0) {
+            mBtnOk!!.text = getString(R.string.ip_select_complete, imagePicker.selectImageCount, imagePicker.selectLimit)
         } else {
-            mBtnOk.setText(getString(R.string.ip_complete));
+            mBtnOk!!.text = getString(R.string.ip_complete)
         }
-
-        if (mCbOrigin.isChecked()) {
-            long size = 0;
-            for (ImageItem imageItem : selectedImages)
-                size += imageItem.size;
-            String fileSize = Formatter.formatFileSize(this, size);
-            mCbOrigin.setText(getString(R.string.ip_origin_size, fileSize));
+        if (mCbOrigin!!.isChecked) {
+            var size: Long = 0
+            for (imageItem in selectedImages) size += imageItem.size
+            val fileSize = Formatter.formatFileSize(this, size)
+            mCbOrigin!!.text = getString(R.string.ip_origin_size, fileSize)
         }
     }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
+    override fun onClick(v: View) {
+        val id = v.id
         if (id == R.id.btn_ok) {
-            if (imagePicker.getSelectedImages().size() == 0) {
-                mCbCheck.setChecked(true);
-                ImageItem imageItem = mImageItems.get(mCurrentPosition);
-                imagePicker.addSelectedImageItem(mCurrentPosition, imageItem, mCbCheck.isChecked());
+            if (imagePicker.selectedImages.size == 0) {
+                mCbCheck!!.isChecked = true
+                val imageItem = mImageItems[mCurrentPosition]
+                imagePicker.addSelectedImageItem(mCurrentPosition, imageItem, mCbCheck!!.isChecked)
             }
-            Intent intent = new Intent();
-            intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.getSelectedImages());
-            setResult(ImagePicker.RESULT_CODE_ITEMS, intent);
-            finish();
-
+            val intent = Intent()
+            intent.putExtra(ImagePicker.EXTRA_RESULT_ITEMS, imagePicker.selectedImages)
+            setResult(ImagePicker.RESULT_CODE_ITEMS, intent)
+            finish()
         } else if (id == R.id.btn_back) {
-            Intent intent = new Intent();
-            intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
-            setResult(ImagePicker.RESULT_CODE_BACK, intent);
-            finish();
+            val intent = Intent()
+            intent.putExtra(ISORIGIN, isOrigin)
+            setResult(ImagePicker.RESULT_CODE_BACK, intent)
+            finish()
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
-        setResult(ImagePicker.RESULT_CODE_BACK, intent);
-        finish();
-        super.onBackPressed();
+    override fun onBackPressed() {
+        val intent = Intent()
+        intent.putExtra(ISORIGIN, isOrigin)
+        setResult(ImagePicker.RESULT_CODE_BACK, intent)
+        finish()
+        super.onBackPressed()
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        int id = buttonView.getId();
+    override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+        val id = buttonView.id
         if (id == R.id.cb_origin) {
             if (isChecked) {
-                long size = 0;
-                for (ImageItem item : selectedImages)
-                    size += item.size;
-                String fileSize = Formatter.formatFileSize(this, size);
-                isOrigin = true;
-                mCbOrigin.setText(getString(R.string.ip_origin_size, fileSize));
+                var size: Long = 0
+                for (item in selectedImages) size += item.size
+                val fileSize = Formatter.formatFileSize(this, size)
+                isOrigin = true
+                mCbOrigin!!.text = getString(R.string.ip_origin_size, fileSize)
             } else {
-                isOrigin = false;
-                mCbOrigin.setText(getString(R.string.ip_origin));
+                isOrigin = false
+                mCbOrigin!!.text = getString(R.string.ip_origin)
             }
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        imagePicker.removeOnImageSelectedListener(this);
-        super.onDestroy();
+    override fun onDestroy() {
+        imagePicker.removeOnImageSelectedListener(this)
+        super.onDestroy()
     }
 
     /**
      * 单击时，隐藏头和尾
      */
-    @Override
-    public void onImageSingleTap() {
-        if (topBar.getVisibility() == View.VISIBLE) {
-            topBar.setAnimation(AnimationUtils.loadAnimation(this, R.anim.top_out));
-            bottomBar.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
-            topBar.setVisibility(View.GONE);
-            bottomBar.setVisibility(View.GONE);
-            tintManager.setStatusBarTintResource(Color.TRANSPARENT);//通知栏所需颜色
+    override fun onImageSingleTap() {
+        if (topBar.visibility == View.VISIBLE) {
+            topBar.animation = AnimationUtils.loadAnimation(this, R.anim.top_out)
+            bottomBar!!.animation = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+            topBar.visibility = View.GONE
+            bottomBar!!.visibility = View.GONE
+            tintManager!!.setStatusBarTintResource(Color.TRANSPARENT) //通知栏所需颜色
             //给最外层布局加上这个属性表示，Activity全屏显示，且状态栏被隐藏覆盖掉。
 //            if (Build.VERSION.SDK_INT >= 16) content.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         } else {
-            topBar.setAnimation(AnimationUtils.loadAnimation(this, R.anim.top_in));
-            bottomBar.setAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in));
-            topBar.setVisibility(View.VISIBLE);
-            bottomBar.setVisibility(View.VISIBLE);
-            tintManager.setStatusBarTintResource(R.color.ip_color_primary_dark);//通知栏所需颜色
+            topBar.animation = AnimationUtils.loadAnimation(this, R.anim.top_in)
+            bottomBar!!.animation = AnimationUtils.loadAnimation(this, R.anim.fade_in)
+            topBar.visibility = View.VISIBLE
+            bottomBar!!.visibility = View.VISIBLE
+            tintManager!!.setStatusBarTintResource(R.color.ip_color_primary_dark) //通知栏所需颜色
             //Activity全屏显示，但状态栏不会被隐藏覆盖，状态栏依然可见，Activity顶端布局部分会被状态遮住
 //            if (Build.VERSION.SDK_INT >= 16) content.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
+    }
+
+    companion object {
+        const val ISORIGIN = "isOrigin"
     }
 }

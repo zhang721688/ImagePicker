@@ -1,108 +1,106 @@
-package com.zxn.imagepicker.ui;
+package com.zxn.imagepicker.ui
 
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import com.zxn.imagepicker.DataHolder;
-import com.zxn.imagepicker.ImagePicker;
-import com.zxn.imagepicker.R;
-import com.zxn.imagepicker.adapter.ImagePageAdapter;
-import com.zxn.imagepicker.bean.ImageItem;
-import com.zxn.imagepicker.util.Utils;
-import com.zxn.imagepicker.view.ViewPagerFixed;
-
-import java.util.ArrayList;
+import android.os.Build
+import android.os.Bundle
+import android.view.View
+import android.widget.RelativeLayout
+import android.widget.TextView
+import com.zxn.imagepicker.DataHolder
+import com.zxn.imagepicker.DataHolder.retrieve
+import com.zxn.imagepicker.ImagePicker
+import com.zxn.imagepicker.R
+import com.zxn.imagepicker.adapter.ImagePageAdapter
+import com.zxn.imagepicker.adapter.ImagePageAdapter.PhotoViewClickListener
+import com.zxn.imagepicker.bean.ImageItem
+import com.zxn.imagepicker.util.Utils
+import com.zxn.imagepicker.view.ViewPagerFixed
+import java.util.*
 
 /**
- * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
+ * ：
  * 修订历史：图片预览的基类
- * ================================================
  */
-public abstract class ImagePreviewBaseActivity extends ImageBaseActivity {
+abstract class ImagePreviewBaseActivity : ImageBaseActivity() {
+    protected var imagePicker: ImagePicker = ImagePicker/*.instance*/
+    //跳转进ImagePreviewFragment的图片文件夹
 
-    protected ImagePicker imagePicker;
-    protected ArrayList<ImageItem> mImageItems;      //跳转进ImagePreviewFragment的图片文件夹
-    protected int mCurrentPosition = 0;              //跳转进ImagePreviewFragment时的序号，第几个图片
-    protected TextView mTitleCount;                  //显示当前图片的位置  例如  5/31
-    protected ArrayList<ImageItem> selectedImages;   //所有已经选中的图片
-    protected View content;
-    protected View topBar;
-    protected ViewPagerFixed mViewPager;
-    protected ImagePageAdapter mAdapter;
-    protected boolean isFromItems = false;
+    @JvmField
+    protected var mImageItems
+            : ArrayList<ImageItem> = ArrayList()
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_preview);
+    @JvmField
+    protected var mCurrentPosition = 0 //跳转进ImagePreviewFragment时的序号，第几个图片
 
-        mCurrentPosition = getIntent().getIntExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, 0);
-        isFromItems = getIntent().getBooleanExtra(ImagePicker.EXTRA_FROM_ITEMS, false);
+    @JvmField
+    protected var mTitleCount //显示当前图片的位置  例如  5/31
+            : TextView? = null
+    protected var selectedImages //所有已经选中的图片
+            : ArrayList<ImageItem> = ArrayList()
 
-        if (isFromItems) {
+    protected var content: View? = null
+
+    //@JvmField
+    protected lateinit var topBar: View
+
+    @JvmField
+    protected var mViewPager: ViewPagerFixed? = null
+
+    @JvmField
+    protected var mAdapter: ImagePageAdapter? = null
+    protected var isFromItems = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_image_preview)
+        mCurrentPosition = intent.getIntExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, 0)
+        isFromItems = intent.getBooleanExtra(ImagePicker.EXTRA_FROM_ITEMS, false)
+        mImageItems = if (isFromItems) {
             // 据说这样会导致大量图片崩溃
-            mImageItems = (ArrayList<ImageItem>) getIntent().getSerializableExtra(ImagePicker.EXTRA_IMAGE_ITEMS);
+            intent.getSerializableExtra(ImagePicker.EXTRA_IMAGE_ITEMS) as ArrayList<ImageItem>
         } else {
             // 下面采用弱引用会导致预览崩溃
-            mImageItems = (ArrayList<ImageItem>) DataHolder.getInstance().retrieve(DataHolder.DH_CURRENT_IMAGE_FOLDER_ITEMS);
+            retrieve(DataHolder.DH_CURRENT_IMAGE_FOLDER_ITEMS) as ArrayList<ImageItem>
         }
-
-        imagePicker = ImagePicker.getInstance();
-        selectedImages = imagePicker.getSelectedImages();
+//        imagePicker = ImagePicker.instance
+        selectedImages = imagePicker.selectedImages
 
         //初始化控件
-        content = findViewById(R.id.content);
+        content = findViewById(R.id.content)
 
         //因为状态栏透明后，布局整体会上移，所以给头部加上状态栏的margin值，保证头部不会被覆盖
-        topBar = findViewById(R.id.top_bar);
+        topBar = findViewById(R.id.top_bar)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) topBar.getLayoutParams();
-            params.topMargin = Utils.getStatusHeight(this);
-            topBar.setLayoutParams(params);
+            val params = topBar.getLayoutParams() as RelativeLayout.LayoutParams
+            params.topMargin = Utils.getStatusHeight(this)
+            topBar.setLayoutParams(params)
         }
-        topBar.findViewById(R.id.btn_ok).setVisibility(View.GONE);
-        topBar.findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
+        topBar.findViewById<View>(R.id.btn_ok).visibility = View.GONE
+        topBar.findViewById<View>(R.id.btn_back).setOnClickListener { finish() }
+        mTitleCount = findViewById<View>(R.id.tv_des) as TextView
+        mViewPager = findViewById<View>(R.id.viewpager) as ViewPagerFixed
+        mAdapter = ImagePageAdapter(this, mImageItems!!)
+        mAdapter!!.setPhotoViewClickListener(object : PhotoViewClickListener {
+            override fun OnPhotoTapListener(view: View?, v: Float, v1: Float) {
+                onImageSingleTap()
             }
-        });
-
-        mTitleCount = (TextView) findViewById(R.id.tv_des);
-
-        mViewPager = (ViewPagerFixed) findViewById(R.id.viewpager);
-        mAdapter = new ImagePageAdapter(this, mImageItems);
-        mAdapter.setPhotoViewClickListener(new ImagePageAdapter.PhotoViewClickListener() {
-            @Override
-            public void OnPhotoTapListener(View view, float v, float v1) {
-                onImageSingleTap();
-            }
-        });
-        mViewPager.setAdapter(mAdapter);
-        mViewPager.setCurrentItem(mCurrentPosition, false);
+        })
+        mViewPager!!.adapter = mAdapter
+        mViewPager!!.setCurrentItem(mCurrentPosition, false)
 
         //初始化当前页面的状态
-        mTitleCount.setText(getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems.size()));
+        mTitleCount!!.text = getString(R.string.ip_preview_image_count, mCurrentPosition + 1, mImageItems!!.size)
     }
 
-    /** 单击时，隐藏头和尾 */
-    public abstract void onImageSingleTap();
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        ImagePicker.getInstance().restoreInstanceState(savedInstanceState);
+    /**
+     * 单击时，隐藏头和尾
+     */
+    abstract fun onImageSingleTap()
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        ImagePicker.restoreInstanceState(savedInstanceState)
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        ImagePicker.getInstance().saveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        ImagePicker.saveInstanceState(outState)
     }
 }

@@ -1,245 +1,175 @@
-package com.zxn.imagepicker;
+package com.zxn.imagepicker
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-
-import androidx.core.content.FileProvider;
-
-import com.zxn.imagepicker.bean.ImageFolder;
-import com.zxn.imagepicker.bean.ImageItem;
-import com.zxn.imagepicker.loader.ImageLoader;
-import com.zxn.imagepicker.util.ProviderUtil;
-import com.zxn.imagepicker.util.Utils;
-import com.zxn.imagepicker.view.CropImageView;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
+import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
+import androidx.core.content.FileProvider
+import com.zxn.imagepicker.bean.ImageFolder
+import com.zxn.imagepicker.bean.ImageItem
+import com.zxn.imagepicker.loader.ImageLoader
+import com.zxn.imagepicker.util.ProviderUtil
+import com.zxn.imagepicker.util.Utils
+import com.zxn.imagepicker.view.CropImageView
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * ================================================
  * 采用单例和弱引用解决Intent传值限制导致的异常
  * ================================================
  */
-public class ImagePicker {
+object ImagePicker /*private constructor()*/ {
 
-    public static final String TAG = ImagePicker.class.getSimpleName();
-    public static final int REQUEST_CODE_TAKE = 1001;
-    public static final int REQUEST_CODE_CROP = 1002;
-    public static final int REQUEST_CODE_PREVIEW = 1003;
-    public static final int RESULT_CODE_ITEMS = 1004;
-    public static final int RESULT_CODE_BACK = 1005;
+    val TAG = ImagePicker::class.java.simpleName
 
-    public static final String EXTRA_RESULT_ITEMS = "extra_result_items";
-    public static final String EXTRA_SELECTED_IMAGE_POSITION = "selected_image_position";
-    public static final String EXTRA_IMAGE_ITEMS = "extra_image_items";
-    public static final String EXTRA_FROM_ITEMS = "extra_from_items";
+    const val REQUEST_CODE_TAKE = 1001
+    const val REQUEST_CODE_CROP = 1002
+    const val REQUEST_CODE_PREVIEW = 1003
+    const val RESULT_CODE_ITEMS = 1004
+    const val RESULT_CODE_BACK = 1005
+    const val EXTRA_RESULT_ITEMS = "extra_result_items"
+    const val EXTRA_SELECTED_IMAGE_POSITION = "selected_image_position"
+    const val EXTRA_IMAGE_ITEMS = "extra_image_items"
+    const val EXTRA_FROM_ITEMS = "extra_from_items"
 
-    private boolean multiMode = true;    //图片选择模式
-    private int selectLimit = 9;         //最大选择图片数量
-    private boolean crop = true;         //裁剪
-    private boolean showCamera = true;   //显示相机
-    private boolean isSaveRectangle = false;  //裁剪后的图片是否是矩形，否者跟随裁剪框的形状
-    private int outPutX = 800;           //裁剪保存宽度
-    private int outPutY = 800;           //裁剪保存高度
-    private int focusWidth = 280;         //焦点框的宽度
-    private int focusHeight = 280;        //焦点框的高度
-    private ImageLoader imageLoader;     //图片加载器
-    private CropImageView.Style style = CropImageView.Style.RECTANGLE; //裁剪框的形状
-    private File cropCacheFolder;
-    private File takeImageFile;
-    public Bitmap cropBitmap;
+
+    var isMultiMode = true //图片选择模式
+    var selectLimit = 9 //最大选择图片数量
+    var isCrop = true //裁剪
+    var isShowCamera = true //显示相机
+    var isSaveRectangle = false //裁剪后的图片是否是矩形，否者跟随裁剪框的形状
+    var outPutX = 800 //裁剪保存宽度
+    var outPutY = 800 //裁剪保存高度
+    var focusWidth = 280 //焦点框的宽度
+
+    var focusHeight = 280 //焦点框的高度
+
+
+    //图片加载器
+    var imageLoader
+            : ImageLoader? = null
+
+    var style: CropImageView.Style = CropImageView.Style.RECTANGLE //裁剪框的形状
+
+    private var cropCacheFolder: File? = null
+    var takeImageFile: File? = null
+        private set
+    var cropBitmap: Bitmap? = null
 
     /**
      * 是否显示已经选图片的角标.
      */
-    private boolean showSelectIndex = false;
+    var isShowSelectIndex = false
+        private set
 
-    public ImagePicker setshowSelectIndex(boolean show) {
-        this.showSelectIndex = show;
-        return mInstance;
+    fun setshowSelectIndex(show: Boolean): ImagePicker {
+        isShowSelectIndex = show
+        return this
     }
 
-    public boolean isShowSelectIndex() {
-        return showSelectIndex;
+    var checkBoxResource = 0
+
+    //选中的图片集合
+    private var mSelectedImages: ArrayList<ImageItem> = ArrayList()
+
+    //所有的图片文件夹
+    private var mImageFolders
+            : MutableList<ImageFolder> = mutableListOf()
+
+    var currentImageFolderPosition = 0 //当前选中的文件夹位置 0表示所有图片
+        //private set
+
+    private var mImageSelectedListeners // 图片选中的监听回调
+            : MutableList<OnImageSelectedListener>? = null
+
+    fun setMultiMode(multiMode: Boolean): ImagePicker {
+        isMultiMode = multiMode
+        return this
     }
 
-    private int checkBoxResource = 0;
-
-    public int getCheckBoxResource() {
-        return checkBoxResource;
+    fun setSelectLimit(selectLimit: Int): ImagePicker {
+        this.selectLimit = selectLimit
+        return this
     }
 
-    public void setCheckBoxResource(int resourceId) {
-        this.checkBoxResource = resourceId;
+    fun setCrop(crop: Boolean): ImagePicker {
+        isCrop = crop
+        return this
     }
 
-    private ArrayList<ImageItem> mSelectedImages = new ArrayList<>();   //选中的图片集合
-    private List<ImageFolder> mImageFolders;      //所有的图片文件夹
-    private int mCurrentImageFolderPosition = 0;  //当前选中的文件夹位置 0表示所有图片
-    private List<OnImageSelectedListener> mImageSelectedListeners;          // 图片选中的监听回调
-
-    private static ImagePicker mInstance;
-
-    private ImagePicker() {
+    fun setShowCamera(showCamera: Boolean): ImagePicker {
+        isShowCamera = showCamera
+        return this
     }
 
-    public static ImagePicker getInstance() {
-        if (mInstance == null) {
-            synchronized (ImagePicker.class) {
-                if (mInstance == null) {
-                    mInstance = new ImagePicker();
-                }
-            }
-        }
-        return mInstance;
+    fun setSaveRectangle(isSaveRectangle: Boolean): ImagePicker {
+        this.isSaveRectangle = isSaveRectangle
+        return this
     }
 
-    public boolean isMultiMode() {
-        return multiMode;
+    fun setOutPutX(outPutX: Int): ImagePicker {
+        this.outPutX = outPutX
+        return this
     }
 
-    public ImagePicker setMultiMode(boolean multiMode) {
-        this.multiMode = multiMode;
-        return mInstance;
+    fun setOutPutY(outPutY: Int): ImagePicker {
+        this.outPutY = outPutY
+        return this
     }
 
-    public int getSelectLimit() {
-        return selectLimit;
+    fun setFocusWidth(focusWidth: Int): ImagePicker {
+        this.focusWidth = focusWidth
+        return this
     }
 
-    public ImagePicker setSelectLimit(int selectLimit) {
-        this.selectLimit = selectLimit;
-        return mInstance;
+    fun setFocusHeight(focusHeight: Int): ImagePicker {
+        this.focusHeight = focusHeight
+        return this
     }
 
-    public boolean isCrop() {
-        return crop;
-    }
-
-    public ImagePicker setCrop(boolean crop) {
-        this.crop = crop;
-        return mInstance;
-    }
-
-    public boolean isShowCamera() {
-        return showCamera;
-    }
-
-    public ImagePicker setShowCamera(boolean showCamera) {
-        this.showCamera = showCamera;
-        return mInstance;
-    }
-
-    public boolean isSaveRectangle() {
-        return isSaveRectangle;
-    }
-
-    public ImagePicker setSaveRectangle(boolean isSaveRectangle) {
-        this.isSaveRectangle = isSaveRectangle;
-        return mInstance;
-    }
-
-    public int getOutPutX() {
-        return outPutX;
-    }
-
-    public ImagePicker setOutPutX(int outPutX) {
-        this.outPutX = outPutX;
-        return mInstance;
-    }
-
-    public int getOutPutY() {
-        return outPutY;
-    }
-
-    public ImagePicker setOutPutY(int outPutY) {
-        this.outPutY = outPutY;
-        return mInstance;
-    }
-
-    public int getFocusWidth() {
-        return focusWidth;
-    }
-
-    public ImagePicker setFocusWidth(int focusWidth) {
-        this.focusWidth = focusWidth;
-        return mInstance;
-    }
-
-    public int getFocusHeight() {
-        return focusHeight;
-    }
-
-    public ImagePicker setFocusHeight(int focusHeight) {
-        this.focusHeight = focusHeight;
-        return mInstance;
-    }
-
-    public File getTakeImageFile() {
-        return takeImageFile;
-    }
-
-    public File getCropCacheFolder(Context context) {
+    fun getCropCacheFolder(context: Context): File {
         if (cropCacheFolder == null) {
-            cropCacheFolder = new File(context.getCacheDir() + "/ImagePicker/cropTemp/");
+            cropCacheFolder = File(context.cacheDir.toString() + "/ImagePicker/cropTemp/")
         }
-        return cropCacheFolder;
+        return cropCacheFolder!!
     }
 
-    public ImagePicker setCropCacheFolder(File cropCacheFolder) {
-        this.cropCacheFolder = cropCacheFolder;
-        return mInstance;
+    fun setCropCacheFolder(cropCacheFolder: File?): ImagePicker {
+        this.cropCacheFolder = cropCacheFolder
+        return this
     }
 
-    public ImageLoader getImageLoader() {
-        return imageLoader;
+    fun setImageLoader(imageLoader: ImageLoader): ImagePicker {
+        this.imageLoader = imageLoader
+        return this
     }
 
-    public ImagePicker setImageLoader(ImageLoader imageLoader) {
-        this.imageLoader = imageLoader;
-        return mInstance;
+    fun setStyle(style: CropImageView.Style): ImagePicker {
+        this.style = style
+        return this
     }
 
-    public CropImageView.Style getStyle() {
-        return style;
+     var imageFolders: List<ImageFolder>  = mImageFolders
+        //get() = mImageFolders
+
+    fun setImageFolders(imageFolders: MutableList<ImageFolder>): ImagePicker {
+        mImageFolders = imageFolders
+        return this
     }
 
-    public ImagePicker setStyle(CropImageView.Style style) {
-        this.style = style;
-        return mInstance;
-    }
-
-    public List<ImageFolder> getImageFolders() {
-        return mImageFolders;
-    }
-
-    public ImagePicker setImageFolders(List<ImageFolder> imageFolders) {
-        mImageFolders = imageFolders;
-        return mInstance;
-    }
-
-    public int getCurrentImageFolderPosition() {
-        return mCurrentImageFolderPosition;
-    }
-
-    public ImagePicker setCurrentImageFolderPosition(int mCurrentSelectedImageSetPosition) {
-        mCurrentImageFolderPosition = mCurrentSelectedImageSetPosition;
-        return mInstance;
+    fun setCurrentImageFolderPosition(mCurrentSelectedImageSetPosition: Int): ImagePicker {
+        currentImageFolderPosition = mCurrentSelectedImageSetPosition
+        return this
     }
 
     /**
@@ -248,191 +178,195 @@ public class ImagePicker {
      * @param showVideo
      * @return
      */
-    public ImagePicker showVideo(boolean showVideo) {
+    fun showVideo(showVideo: Boolean): ImagePicker {
         //ConfigManager.getInstance().setShowVideo(showVideo);
-        return mInstance;
+        return this
     }
 
-    public ArrayList<ImageItem> getCurrentImageFolderItems() {
-        return mImageFolders.get(mCurrentImageFolderPosition).images;
+    val currentImageFolderItems: ArrayList<ImageItem>
+        get() = mImageFolders!![currentImageFolderPosition].images
+
+    fun isSelect(item: ImageItem): Boolean {
+        return mSelectedImages.contains(item)
     }
 
-    public boolean isSelect(ImageItem item) {
-        return mSelectedImages.contains(item);
-    }
-
-    public int getSelectImageCount() {
-        if (mSelectedImages == null) {
-            return 0;
+    val selectImageCount: Int
+        get() = if (mSelectedImages == null) {
+            0
+        } else mSelectedImages!!.size
+    var selectedImages: ArrayList<ImageItem>
+        get() = mSelectedImages
+        set(selectedImages) {
+            if (selectedImages == null) {
+                return
+            }
+            mSelectedImages = selectedImages
         }
-        return mSelectedImages.size();
+
+    fun clearSelectedImages() {
+        if (mSelectedImages != null) mSelectedImages!!.clear()
     }
 
-    public ArrayList<ImageItem> getSelectedImages() {
-        return mSelectedImages;
-    }
-
-    public void clearSelectedImages() {
-        if (mSelectedImages != null) mSelectedImages.clear();
-    }
-
-    public void clear() {
+    fun clear() {
         if (mImageSelectedListeners != null) {
-            mImageSelectedListeners.clear();
-            mImageSelectedListeners = null;
+            mImageSelectedListeners!!.clear()
+            mImageSelectedListeners = null
         }
         if (mImageFolders != null) {
-            mImageFolders.clear();
-            mImageFolders = null;
+            mImageFolders!!.clear()
+            //mImageFolders = null
         }
         if (mSelectedImages != null) {
-            mSelectedImages.clear();
+            mSelectedImages!!.clear()
         }
-        mCurrentImageFolderPosition = 0;
+        currentImageFolderPosition = 0
     }
 
     /**
      * 拍照的方法
      */
-    public void takePicture(Activity activity, int requestCode) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takePictureIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            if (Utils.existSDCard())
-                takeImageFile = new File(Environment.getExternalStorageDirectory(), "/DCIM/camera/");
-            else takeImageFile = Environment.getDataDirectory();
-            takeImageFile = createFile(takeImageFile, "IMG_", ".jpg");
+    fun takePicture(activity: Activity, requestCode: Int) {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        takePictureIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
+            takeImageFile = if (Utils.existSDCard()) File(Environment.getExternalStorageDirectory(), "/DCIM/camera/") else Environment.getDataDirectory()
+            takeImageFile = createFile(takeImageFile, "IMG_", ".jpg")
             if (takeImageFile != null) {
                 // 默认情况下，即不需要指定intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
                 // 照相机有自己默认的存储路径，拍摄的照片将返回一个缩略图。如果想访问原始图片，
                 // 可以通过dat extra能够得到原始图片位置。即，如果指定了目标uri，data就没有数据，
                 // 如果没有指定uri，则data就返回有数据！
-
-                Uri uri;
+                val uri: Uri
                 if (VERSION.SDK_INT <= VERSION_CODES.M) {
-                    uri = Uri.fromFile(takeImageFile);
+                    uri = Uri.fromFile(takeImageFile)
                 } else {
-
                     /**
                      * 7.0 调用系统相机拍照不再允许使用Uri方式，应该替换为FileProvider
                      * 并且这样可以解决MIUI系统上拍照返回size为0的情况
                      */
-                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile);
+                    uri = FileProvider.getUriForFile(activity, ProviderUtil.getFileProviderName(activity), takeImageFile!!)
                     //加入uri权限 要不三星手机不能拍照
-                    List<ResolveInfo> resInfoList = activity.getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    val resInfoList = activity.packageManager.queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY)
+                    for (resolveInfo in resInfoList) {
+                        val packageName = resolveInfo.activityInfo.packageName
+                        activity.grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                 }
-
-                Log.e("nanchen", ProviderUtil.getFileProviderName(activity));
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                Log.e("nanchen", ProviderUtil.getFileProviderName(activity))
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
             }
         }
-        activity.startActivityForResult(takePictureIntent, requestCode);
-    }
-
-    /**
-     * 根据系统时间、前缀、后缀产生一个文件
-     */
-    public static File createFile(File folder, String prefix, String suffix) {
-        if (!folder.exists() || !folder.isDirectory()) folder.mkdirs();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.CHINA);
-        String filename = prefix + dateFormat.format(new Date(System.currentTimeMillis())) + suffix;
-        return new File(folder, filename);
-    }
-
-    /**
-     * 扫描图片
-     */
-    public static void galleryAddPic(Context context, File file) {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        Uri contentUri = Uri.fromFile(file);
-        mediaScanIntent.setData(contentUri);
-        context.sendBroadcast(mediaScanIntent);
+        activity.startActivityForResult(takePictureIntent, requestCode)
     }
 
     /**
      * 图片选中的监听
      */
-    public interface OnImageSelectedListener {
-        void onImageSelected(int position, ImageItem item, boolean isAdd);
+    interface OnImageSelectedListener {
+        fun onImageSelected(position: Int, item: ImageItem?, isAdd: Boolean)
     }
 
-    public void addOnImageSelectedListener(OnImageSelectedListener l) {
-        if (mImageSelectedListeners == null) mImageSelectedListeners = new ArrayList<>();
-        mImageSelectedListeners.add(l);
+    fun addOnImageSelectedListener(l: OnImageSelectedListener) {
+        if (mImageSelectedListeners == null) mImageSelectedListeners = ArrayList()
+        mImageSelectedListeners!!.add(l)
     }
 
-    public void removeOnImageSelectedListener(OnImageSelectedListener l) {
-        if (mImageSelectedListeners == null) return;
-        mImageSelectedListeners.remove(l);
+    fun removeOnImageSelectedListener(l: OnImageSelectedListener) {
+        if (mImageSelectedListeners == null) return
+        mImageSelectedListeners!!.remove(l)
     }
 
-    public void addSelectedImageItem(int position, ImageItem item, boolean isAdd) {
-        if (isAdd) mSelectedImages.add(item);
-        else mSelectedImages.remove(item);
-        notifyImageSelectedChanged(position, item, isAdd);
+    fun addSelectedImageItem(position: Int, item: ImageItem, isAdd: Boolean) {
+        if (isAdd) mSelectedImages!!.add(item) else mSelectedImages!!.remove(item)
+        notifyImageSelectedChanged(position, item, isAdd)
     }
 
-    public void setSelectedImages(ArrayList<ImageItem> selectedImages) {
-        if (selectedImages == null) {
-            return;
-        }
-        this.mSelectedImages = selectedImages;
-    }
-
-    private void notifyImageSelectedChanged(int position, ImageItem item, boolean isAdd) {
-        if (mImageSelectedListeners == null) return;
-        for (OnImageSelectedListener l : mImageSelectedListeners) {
-            l.onImageSelected(position, item, isAdd);
+    private fun notifyImageSelectedChanged(position: Int, item: ImageItem, isAdd: Boolean) {
+        if (mImageSelectedListeners == null) return
+        for (l in mImageSelectedListeners!!) {
+            l.onImageSelected(position, item, isAdd)
         }
     }
 
     /**
      * 用于手机内存不足，进程被系统回收，重启时的状态恢复
      */
-    public void restoreInstanceState(Bundle savedInstanceState) {
-        cropCacheFolder = (File) savedInstanceState.getSerializable("cropCacheFolder");
-        takeImageFile = (File) savedInstanceState.getSerializable("takeImageFile");
-        imageLoader = (ImageLoader) savedInstanceState.getSerializable("imageLoader");
-        style = (CropImageView.Style) savedInstanceState.getSerializable("style");
-        multiMode = savedInstanceState.getBoolean("multiMode");
-        crop = savedInstanceState.getBoolean("crop");
-        showCamera = savedInstanceState.getBoolean("showCamera");
-        isSaveRectangle = savedInstanceState.getBoolean("isSaveRectangle");
-        selectLimit = savedInstanceState.getInt("selectLimit");
-        outPutX = savedInstanceState.getInt("outPutX");
-        outPutY = savedInstanceState.getInt("outPutY");
-        focusWidth = savedInstanceState.getInt("focusWidth");
-        focusHeight = savedInstanceState.getInt("focusHeight");
+    fun restoreInstanceState(savedInstanceState: Bundle) {
+        cropCacheFolder = savedInstanceState.getSerializable("cropCacheFolder") as File?
+        takeImageFile = savedInstanceState.getSerializable("takeImageFile") as File?
+        imageLoader = savedInstanceState.getSerializable("imageLoader") as ImageLoader?
+        style = savedInstanceState.getSerializable("style") as CropImageView.Style
+        isMultiMode = savedInstanceState.getBoolean("multiMode")
+        isCrop = savedInstanceState.getBoolean("crop")
+        isShowCamera = savedInstanceState.getBoolean("showCamera")
+        isSaveRectangle = savedInstanceState.getBoolean("isSaveRectangle")
+        selectLimit = savedInstanceState.getInt("selectLimit")
+        outPutX = savedInstanceState.getInt("outPutX")
+        outPutY = savedInstanceState.getInt("outPutY")
+        focusWidth = savedInstanceState.getInt("focusWidth")
+        focusHeight = savedInstanceState.getInt("focusHeight")
     }
 
     /**
      * 用于手机内存不足，进程被系统回收时的状态保存
      */
-    public void saveInstanceState(Bundle outState) {
-        outState.putSerializable("cropCacheFolder", cropCacheFolder);
-        outState.putSerializable("takeImageFile", takeImageFile);
-        outState.putSerializable("imageLoader", imageLoader);
-        outState.putSerializable("style", style);
-        outState.putBoolean("multiMode", multiMode);
-        outState.putBoolean("crop", crop);
-        outState.putBoolean("showCamera", showCamera);
-        outState.putBoolean("isSaveRectangle", isSaveRectangle);
-        outState.putInt("selectLimit", selectLimit);
-        outState.putInt("outPutX", outPutX);
-        outState.putInt("outPutY", outPutY);
-        outState.putInt("focusWidth", focusWidth);
-        outState.putInt("focusHeight", focusHeight);
+    fun saveInstanceState(outState: Bundle) {
+        outState.putSerializable("cropCacheFolder", cropCacheFolder)
+        outState.putSerializable("takeImageFile", takeImageFile)
+        outState.putSerializable("imageLoader", imageLoader)
+        outState.putSerializable("style", style)
+        outState.putBoolean("multiMode", isMultiMode)
+        outState.putBoolean("crop", isCrop)
+        outState.putBoolean("showCamera", isShowCamera)
+        outState.putBoolean("isSaveRectangle", isSaveRectangle)
+        outState.putInt("selectLimit", selectLimit)
+        outState.putInt("outPutX", outPutX)
+        outState.putInt("outPutY", outPutY)
+        outState.putInt("focusWidth", focusWidth)
+        outState.putInt("focusHeight", focusHeight)
     }
 
     /**
      * 获取选中图片所在集合中的索引.
      */
-    public int imageIndexOf(ImageItem imageItem) {
-        return mSelectedImages.indexOf(imageItem);
+    fun imageIndexOf(imageItem: ImageItem): Int {
+        return mSelectedImages!!.indexOf(imageItem)
+    }
+
+//    companion object {
+//        private var mInstance: ImagePicker? = null
+//        @JvmStatic
+//        val instance: ImagePicker?
+//            get() {
+//                if (mInstance == null) {
+//                    synchronized(ImagePicker::class.java) {
+//                        if (mInstance == null) {
+//                            mInstance = ImagePicker()
+//                        }
+//                    }
+//                }
+//                return mInstance
+//            }
+//    }
+
+    /**
+     * 扫描图片
+     */
+    fun galleryAddPic(context: Context, file: File?) {
+        val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        val contentUri = Uri.fromFile(file)
+        mediaScanIntent.data = contentUri
+        context.sendBroadcast(mediaScanIntent)
+    }
+
+    /**
+     * 根据系统时间、前缀、后缀产生一个文件
+     */
+    fun createFile(folder: File?, prefix: String, suffix: String): File {
+        if (!folder!!.exists() || !folder.isDirectory) folder.mkdirs()
+        val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.CHINA)
+        val filename = prefix + dateFormat.format(Date(System.currentTimeMillis())) + suffix
+        return File(folder, filename)
     }
 
 }

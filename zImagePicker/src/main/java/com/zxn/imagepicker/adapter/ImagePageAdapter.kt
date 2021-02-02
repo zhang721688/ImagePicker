@@ -1,92 +1,64 @@
-package com.zxn.imagepicker.adapter;
+package com.zxn.imagepicker.adapter
 
-import android.app.Activity;
-import androidx.viewpager.widget.PagerAdapter;
-import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
+import android.app.Activity
+import android.view.View
+import android.view.ViewGroup
+import androidx.viewpager.widget.PagerAdapter
+import com.zxn.imagepicker.ImagePicker
+import com.zxn.imagepicker.bean.ImageItem
+import com.zxn.imagepicker.util.Utils
+import uk.co.senab.photoview.PhotoView
+import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener
+import java.util.*
 
-import com.zxn.imagepicker.ImagePicker;
-import com.zxn.imagepicker.bean.ImageItem;
-import com.zxn.imagepicker.util.Utils;
-
-import java.util.ArrayList;
-
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
-
-/**
- * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
- * 修订历史：
- * ================================================
- */
-public class ImagePageAdapter extends PagerAdapter {
-
-    private int screenWidth;
-    private int screenHeight;
-    private ImagePicker imagePicker;
-    private ArrayList<ImageItem> images = new ArrayList<>();
-    private Activity mActivity;
-    public PhotoViewClickListener listener;
-
-    public ImagePageAdapter(Activity activity, ArrayList<ImageItem> images) {
-        this.mActivity = activity;
-        this.images = images;
-
-        DisplayMetrics dm = Utils.getScreenPix(activity);
-        screenWidth = dm.widthPixels;
-        screenHeight = dm.heightPixels;
-        imagePicker = ImagePicker.getInstance();
+class ImagePageAdapter(private val mActivity: Activity, images: ArrayList<ImageItem>) : PagerAdapter() {
+    private val screenWidth: Int
+    private val screenHeight: Int
+//    private val imagePicker: ImagePicker
+    private var images = ArrayList<ImageItem>()
+    var listener: PhotoViewClickListener? = null
+    fun setData(images: ArrayList<ImageItem>) {
+        this.images = images
     }
 
-    public void setData(ArrayList<ImageItem> images) {
-        this.images = images;
+    fun setPhotoViewClickListener(listener: PhotoViewClickListener?) {
+        this.listener = listener
     }
 
-    public void setPhotoViewClickListener(PhotoViewClickListener listener) {
-        this.listener = listener;
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        val photoView = PhotoView(mActivity)
+        val imageItem = images[position]
+        ImagePicker.imageLoader?.displayImagePreview(mActivity, imageItem.path, photoView, screenWidth, screenHeight)
+        photoView.onPhotoTapListener = OnPhotoTapListener { view, x, y -> if (listener != null) listener!!.OnPhotoTapListener(view, x, y) }
+        container.addView(photoView)
+        return photoView
     }
 
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        PhotoView photoView = new PhotoView(mActivity);
-        ImageItem imageItem = images.get(position);
-        imagePicker.getImageLoader().displayImagePreview(mActivity, imageItem.path, photoView, screenWidth, screenHeight);
-        photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
-            @Override
-            public void onPhotoTap(View view, float x, float y) {
-                if (listener != null) listener.OnPhotoTapListener(view, x, y);
-            }
-        });
-        container.addView(photoView);
-        return photoView;
+    override fun getCount(): Int {
+        return images.size
     }
 
-    @Override
-    public int getCount() {
-        return images.size();
+    override fun isViewFromObject(view: View, `object`: Any): Boolean {
+        return view === `object`
     }
 
-    @Override
-    public boolean isViewFromObject(View view, Object object) {
-        return view == object;
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as View)
     }
 
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((View) object);
+    override fun getItemPosition(`object`: Any): Int {
+        return POSITION_NONE
     }
 
-    @Override
-    public int getItemPosition(Object object) {
-        return POSITION_NONE;
+    interface PhotoViewClickListener {
+        fun OnPhotoTapListener(view: View?, v: Float, v1: Float)
     }
 
-    public interface PhotoViewClickListener {
-        void OnPhotoTapListener(View view, float v, float v1);
+    init {
+        this.images = images
+        val dm = Utils.getScreenPix(mActivity)
+        screenWidth = dm.widthPixels
+        screenHeight = dm.heightPixels
+        //imagePicker = ImagePicker.instance
     }
 }

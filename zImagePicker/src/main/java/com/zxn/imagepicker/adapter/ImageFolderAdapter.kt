@@ -1,120 +1,94 @@
-package com.zxn.imagepicker.adapter;
+package com.zxn.imagepicker.adapter
 
-import android.app.Activity;
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.app.Activity
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import com.zxn.imagepicker.ImagePicker
+import com.zxn.imagepicker.R
+import com.zxn.imagepicker.bean.ImageFolder
+import com.zxn.imagepicker.util.Utils
+import java.util.*
 
-import com.zxn.imagepicker.ImagePicker;
-import com.zxn.imagepicker.R;
-import com.zxn.imagepicker.bean.ImageFolder;
-import com.zxn.imagepicker.util.Utils;
+class ImageFolderAdapter(private val mActivity: Activity, folders: MutableList<ImageFolder>?) : BaseAdapter() {
 
-import java.util.ArrayList;
-import java.util.List;
+//    private val imagePicker: ImagePicker
 
-
-/**
- * ================================================
- * 作    者：jeasonlzy（廖子尧 Github地址：https://github.com/jeasonlzy0216
- * 版    本：1.0
- * 创建日期：2016/5/19
- * 描    述：
- * 修订历史：
- * ================================================
- */
-public class ImageFolderAdapter extends BaseAdapter {
-
-    private ImagePicker imagePicker;
-    private Activity mActivity;
-    private LayoutInflater mInflater;
-    private int mImageSize;
-    private List<ImageFolder> imageFolders;
-    private int lastSelected = 0;
-
-    public ImageFolderAdapter(Activity activity, List<ImageFolder> folders) {
-        mActivity = activity;
-        if (folders != null && folders.size() > 0) imageFolders = folders;
-        else imageFolders = new ArrayList<>();
-
-        imagePicker = ImagePicker.getInstance();
-        mImageSize = Utils.getImageItemWidth(mActivity);
-        mInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    private val mInflater: LayoutInflater
+    private val mImageSize: Int
+    private var imageFolders: MutableList<ImageFolder>? = null
+    private var lastSelected = 0
+    fun refreshData(folders: MutableList<ImageFolder>?) {
+        if (folders != null && folders.size > 0) imageFolders = folders else imageFolders!!.clear()
+        notifyDataSetChanged()
     }
 
-    public void refreshData(List<ImageFolder> folders) {
-        if (folders != null && folders.size() > 0) imageFolders = folders;
-        else imageFolders.clear();
-        notifyDataSetChanged();
+    override fun getCount(): Int {
+        return imageFolders!!.size
     }
 
-    @Override
-    public int getCount() {
-        return imageFolders.size();
+    override fun getItem(position: Int): ImageFolder {
+        return imageFolders!![position]
     }
 
-    @Override
-    public ImageFolder getItem(int position) {
-        return imageFolders.get(position);
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+    override fun getView(position: Int, convertView: View, parent: ViewGroup): View {
+        var convertView = convertView
+        val holder: ViewHolder
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.adapter_folder_list_item, parent, false);
-            holder = new ViewHolder(convertView);
+            convertView = mInflater.inflate(R.layout.adapter_folder_list_item, parent, false)
+            holder = ViewHolder(convertView)
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            holder = convertView.tag as ViewHolder
         }
-
-        ImageFolder folder = getItem(position);
-        holder.folderName.setText(folder.name);
-        holder.imageCount.setText(mActivity.getString(R.string.ip_folder_image_count, folder.images.size()));
-        imagePicker.getImageLoader().displayImage(mActivity, folder.cover.path, holder.cover, mImageSize, mImageSize);
-
+        val folder = getItem(position)
+        holder.folderName.text = folder.name
+        holder.imageCount.text = mActivity.getString(R.string.ip_folder_image_count, folder.images.size)
+        ImagePicker.imageLoader?.displayImage(mActivity, folder.cover.path, holder.cover, mImageSize, mImageSize)
         if (lastSelected == position) {
-            holder.folderCheck.setVisibility(View.VISIBLE);
+            holder.folderCheck.visibility = View.VISIBLE
         } else {
-            holder.folderCheck.setVisibility(View.INVISIBLE);
+            holder.folderCheck.visibility = View.INVISIBLE
         }
-
-        return convertView;
+        return convertView
     }
 
-    public void setSelectIndex(int i) {
-        if (lastSelected == i) {
-            return;
+    var selectIndex: Int
+        get() = lastSelected
+        set(i) {
+            if (lastSelected == i) {
+                return
+            }
+            lastSelected = i
+            notifyDataSetChanged()
         }
-        lastSelected = i;
-        notifyDataSetChanged();
+
+    private inner class ViewHolder(view: View) {
+        var cover: ImageView
+        var folderName: TextView
+        var imageCount: TextView
+        var folderCheck: ImageView
+
+        init {
+            cover = view.findViewById<View>(R.id.iv_cover) as ImageView
+            folderName = view.findViewById<View>(R.id.tv_folder_name) as TextView
+            imageCount = view.findViewById<View>(R.id.tv_image_count) as TextView
+            folderCheck = view.findViewById<View>(R.id.iv_folder_check) as ImageView
+            view.tag = this
+        }
     }
 
-    public int getSelectIndex() {
-        return lastSelected;
-    }
-
-    private class ViewHolder {
-        ImageView cover;
-        TextView folderName;
-        TextView imageCount;
-        ImageView folderCheck;
-
-        public ViewHolder(View view) {
-            cover = (ImageView) view.findViewById(R.id.iv_cover);
-            folderName = (TextView) view.findViewById(R.id.tv_folder_name);
-            imageCount = (TextView) view.findViewById(R.id.tv_image_count);
-            folderCheck = (ImageView) view.findViewById(R.id.iv_folder_check);
-            view.setTag(this);
-        }
+    init {
+        imageFolders = if (folders != null && folders.size > 0) folders else ArrayList()
+//        imagePicker = ImagePicker.instance
+        mImageSize = Utils.getImageItemWidth(mActivity)
+        mInflater = mActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     }
 }
