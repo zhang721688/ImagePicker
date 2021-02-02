@@ -10,16 +10,18 @@ import org.xutils.x
 
 /**
  * Created by ny on 2021/2/1.
- * https://github.com/jeasonlzy0216
  */
 class GApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        //UniversalImageLoader初始化
         val config = ImageLoaderConfiguration.createDefault(this)
         ImageLoader.getInstance().init(config)
-        //UniversalImageLoader初始化
-        x.Ext.init(this) //xUtils3初始化
+
+        //xUtils3初始化
+        x.Ext.init(this)
     }
 
     companion object {

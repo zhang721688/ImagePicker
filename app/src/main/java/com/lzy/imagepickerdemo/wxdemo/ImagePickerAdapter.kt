@@ -16,12 +16,31 @@ import java.util.*
 /**
  * 微信图片选择的Adapter
  */
-class ImagePickerAdapter(private val mContext: Context, data: List<ImageItem>?, private val maxImgCount: Int) : RecyclerView.Adapter<SelectedPicViewHolder>() {
+class ImagePickerAdapter(private val mContext: Context, data: List<ImageItem>?, private val maxImgCount: Int)
+    : RecyclerView.Adapter<SelectedPicViewHolder>() {
+
     private var mData: MutableList<ImageItem>? = null
-    private val mInflater: LayoutInflater
+
+    private val mInflater: LayoutInflater = LayoutInflater.from(mContext)
+
     private var listener: OnRecyclerViewItemClickListener? = null
-    private var isAdded //是否额外添加了最后一个图片
-            = false
+
+    /**
+     * //是否额外添加了最后一个图片
+     */
+    private var isAdded = false
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedPicViewHolder {
+        return SelectedPicViewHolder(mInflater.inflate(R.layout.list_item_image, parent, false))
+    }
+
+    override fun onBindViewHolder(holder: SelectedPicViewHolder, position: Int) {
+        holder.bind(position)
+    }
+
+    override fun getItemCount(): Int {
+        return mData!!.size
+    }
 
     interface OnRecyclerViewItemClickListener {
         fun onItemClick(view: View, position: Int)
@@ -46,46 +65,34 @@ class ImagePickerAdapter(private val mContext: Context, data: List<ImageItem>?, 
             notifyDataSetChanged()
         }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectedPicViewHolder {
-        return SelectedPicViewHolder(mInflater.inflate(R.layout.list_item_image, parent, false))
-    }
-
-    override fun onBindViewHolder(holder: SelectedPicViewHolder, position: Int) {
-        holder.bind(position)
-    }
-
-    override fun getItemCount(): Int {
-        return mData!!.size
-    }
 
     inner class SelectedPicViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        private val iv_img: ImageView
+
+        private val ivImg: ImageView = itemView.findViewById(R.id.iv_img)
+
         private var clickPosition = 0
+
         fun bind(position: Int) {
             //设置条目的点击事件
             itemView.setOnClickListener(this)
             //根据条目位置设置图片
             val item = mData!![position]
             clickPosition = if (isAdded && position == itemCount - 1) {
-                iv_img.setImageResource(R.drawable.selector_image_add)
+                ivImg.setImageResource(R.drawable.selector_image_add)
                 WxDemoActivity.IMAGE_ITEM_ADD
             } else {
-                ImagePicker.imageLoader?.displayImage(mContext as Activity, item.path, iv_img, 0, 0)
+                ImagePicker.imageLoader?.displayImage(mContext as Activity, item.path, ivImg, 0, 0)
                 position
             }
         }
 
         override fun onClick(v: View) {
-            if (listener != null) listener?.onItemClick(v, clickPosition)
+            listener?.onItemClick(v, clickPosition)
         }
 
-        init {
-            iv_img = itemView.findViewById<View>(R.id.iv_img) as ImageView
-        }
     }
 
     init {
-        mInflater = LayoutInflater.from(mContext)
         images = data
     }
 }

@@ -12,7 +12,6 @@ import java.io.File
 
 /**
  * Created by zxn on 2019/5/17.
- * https://github.com/jeasonlzy0216
  */
 class GlideImageLoader : ImageLoader {
     override fun displayImage(activity: Activity, path: String, imageView: ImageView, width: Int, height: Int) {
